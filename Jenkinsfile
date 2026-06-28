@@ -6,51 +6,23 @@ pipeline {
         maven 'Maven3'
     }
 
-    environment {
-        APP_NAME = "springboot-demo"
-    }
-
     stages {
 
-        stage('Checkout') {
+        stage('Environment') {
             steps {
-                echo "Checking out source code..."
-                checkout scm
+                sh 'java -version'
+                sh 'mvn -version'
             }
         }
 
         stage('Build') {
             steps {
-                echo "Compiling application..."
-                sh 'mvn clean compile'
-            }
-        }
-
-        stage('Unit Tests') {
-            steps {
-                echo "Running unit tests..."
-                sh 'mvn test'
-            }
-        }
-
-        stage('Package') {
-            steps {
-                echo "Packaging application..."
-                sh 'mvn package'
+                sh 'mvn clean package'
             }
         }
     }
 
     post {
-
-        success {
-            echo "Pipeline completed successfully."
-        }
-
-        failure {
-            echo "Pipeline failed."
-        }
-
         always {
             archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
         }
