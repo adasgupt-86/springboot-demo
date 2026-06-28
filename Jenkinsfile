@@ -9,6 +9,7 @@ pipeline {
 
     environment {
         APP_NAME = "springboot-demo"
+        DOCKER_IMAGE = "adasgupt86/springboot-demo"
     }
 
     options {
@@ -33,18 +34,19 @@ pipeline {
         stage('Environment Info') {
             steps {
                 sh '''
-                    echo "========== JAVA VERSION =========="
+                    echo "========== JAVA =========="
                     java -version
 
-                    echo ""
-                    echo "========== MAVEN VERSION =========="
+                    echo
+                    echo "========== MAVEN =========="
                     mvn -version
 
-                    echo ""
-                    echo "========== WORKSPACE =========="
-                    pwd
+                    echo
+                    echo "========== DOCKER =========="
+                    docker --version
 
-                    echo ""
+                    echo
+                    pwd
                     ls -la
                 '''
             }
@@ -52,21 +54,18 @@ pipeline {
 
         stage('Compile') {
             steps {
-                echo "========== COMPILE =========="
                 sh 'mvn clean compile'
             }
         }
 
         stage('Unit Tests') {
             steps {
-                echo "========== UNIT TESTS =========="
                 sh 'mvn test'
             }
         }
 
         stage('Package') {
             steps {
-                echo "========== PACKAGE =========="
                 sh 'mvn package'
             }
         }
@@ -79,7 +78,9 @@ pipeline {
         }
 
         stage('SonarQube Scan') {
+
             steps {
+
                 script {
 
                     def scannerHome = tool 'sonar-scanner'
@@ -99,26 +100,35 @@ pipeline {
         }
 
         stage('Quality Gate') {
+
             steps {
+
                 timeout(time: 5, unit: 'MINUTES') {
+
                     waitForQualityGate abortPipeline: true
+
                 }
+
             }
+
         }
 
         stage('Manual Approval') {
+
             steps {
+
                 input(
                     message: 'Approve Security Scan & Docker Build?',
                     ok: 'Approve'
                 )
+
             }
+
         }
 
         stage('Trivy Filesystem Scan') {
-            steps {
 
-                echo "========== TRIVY FILESYSTEM SCAN =========="
+            steps {
 
                 sh '''
                     trivy fs \
@@ -128,7 +138,73 @@ pipeline {
                         --no-progress \
                         .
                 '''
+
             }
+
+        }
+
+        stage('Docker Build') {
+
+            steps {
+
+                sh """
+                    docker build \
+                    -t ${DOCKER_IMAGE}:${BUILD_NUMBER} \
+                    -t ${DOCKER_IMAGE}:latest .
+                """
+
+            }
+
+        }
+
+        stage('Trivy Image Scan') {
+
+            steps {
+
+                sh """
+                    trivy image \
+                    --severity HIGH,CRITICAL \
+                    --exit-code 0 \
+                    --no-progress \
+                    ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                """
+
+            }
+
+        }
+
+        stage('Docker Login') {
+
+            steps {
+
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-cred',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login \
+                        -u "$DOCKER_USER" \
+                        --password-stdin
+                    '''
+                }
+
+            }
+
+        }
+
+        stage('Docker Push') {
+
+            steps {
+
+                sh """
+                    docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                    docker push ${DOCKER_IMAGE}:latest
+                """
+
+            }
+
         }
 
     }
@@ -136,11 +212,15 @@ pipeline {
     post {
 
         success {
+
             echo "Pipeline completed successfully."
+
         }
 
         failure {
+
             echo "Pipeline failed."
+
         }
 
         always {
@@ -151,8 +231,12 @@ pipeline {
             archiveArtifacts artifacts: 'target/*.jar',
                              fingerprint: true
 
-            // Enable after all stages are stable
+            sh 'docker logout || true'
+
+            // Enable later
             // cleanWs()
         }
+
     }
+
 }
