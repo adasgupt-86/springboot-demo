@@ -196,7 +196,15 @@ pipeline {
             }
 
         }
-
+        stage('Verify Helm') {
+            steps {
+                sh '''
+                echo "PATH=$PATH"
+                which helm
+                helm version
+            '''
+            }
+        }
         stage('Helm Lint') {
 
             steps {
