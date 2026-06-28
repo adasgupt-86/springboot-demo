@@ -1,0 +1,8 @@
+replicaCount: 3
+
+image:
+  repository: adasgupt86/springboot-demo
+  tag: latest
+
+service:
+  type: NodePort
