@@ -211,7 +211,7 @@ pipeline {
 
                 sh '''
 
-                helm lint helm/springboot-demo
+                helm lint helm
 
                 '''
 
@@ -234,20 +234,14 @@ pipeline {
         }
 
         stage('Deploy to Kubernetes') {
-
             steps {
-
-                sh """
-
-                helm upgrade --install ${APP_NAME} \
-                helm/springboot-demo \
-                --namespace ${params.ENVIRONMENT} \
-                --create-namespace \
-                -f helm/springboot-demo/values-${params.ENVIRONMENT}.yaml \
-                --set image.repository=${DOCKER_IMAGE} \
-                --set image.tag=${IMAGE_TAG}
-
-                """
+                script {
+                    def envName = "dev"   // later you can parameterize this
+                    sh """
+                    helm upgrade --install springboot-demo helm \
+                      -n ${envName} --create-namespace \
+                      -f values-${envName}.yaml
+                    """
 
             }
 
