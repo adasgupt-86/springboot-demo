@@ -172,7 +172,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    def envName = params.ENVIRONMENT
+                    def envName = params.ENVIRONMENT   ## FIX: use parameter instead of hardcoding
 
                     sh """
                     helm upgrade --install ${APP_NAME} helm \
@@ -188,7 +188,7 @@ pipeline {
         stage('Verify Rollout') {
             steps {
                 script {
-                    def envName = params.ENVIRONMENT
+                    def envName = params.ENVIRONMENT   ## FIX: consistent env usage
 
                     sh """
                     kubectl rollout status deployment/${APP_NAME} -n ${envName}
@@ -203,6 +203,9 @@ pipeline {
                     def envName = params.ENVIRONMENT
 
                     sh """
+                    ## FIX: NodePort is unreliable for production-style deployments
+                    ## Better approach is ClusterIP + Ingress (you will upgrade later)
+
                     NODEPORT=\$(kubectl get svc ${APP_NAME} -n ${envName} -o jsonpath='{.spec.ports[0].nodePort}')
                     NODEIP=\$(kubectl get nodes -o wide | awk 'NR==2 {print \$6}')
 
