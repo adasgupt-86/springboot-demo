@@ -7,58 +7,36 @@ pipeline {
         maven 'Maven3'
     }
 
-    environment {
-        APP_NAME = "springboot-demo"
-        DOCKER_IMAGE = "adasgupt86/springboot-demo"
-    }
-
     options {
         timestamps()
         disableConcurrentBuilds()
+    }
 
-        buildDiscarder(logRotator(
-            numToKeepStr: '20',
-            artifactNumToKeepStr: '10'
-        ))
+    environment {
+
+        APP_NAME = "springboot-demo"
+
+        DOCKER_IMAGE = "adasgupt86/springboot-demo"
+
+        IMAGE_TAG = "${BUILD_NUMBER}"
+
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                echo "========== CHECKOUT =========="
                 checkout scm
             }
         }
 
-        stage('Environment Info') {
-            steps {
-                sh '''
-                    echo "========== JAVA =========="
-                    java -version
-
-                    echo
-                    echo "========== MAVEN =========="
-                    mvn -version
-
-                    echo
-                    echo "========== DOCKER =========="
-                    docker --version
-
-                    echo
-                    pwd
-                    ls -la
-                '''
-            }
-        }
-
-        stage('Compile') {
+        stage('Build') {
             steps {
                 sh 'mvn clean compile'
             }
         }
 
-        stage('Unit Tests') {
+        stage('Unit Test') {
             steps {
                 sh 'mvn test'
             }
@@ -67,13 +45,6 @@ pipeline {
         stage('Package') {
             steps {
                 sh 'mvn package'
-            }
-        }
-
-        stage('Archive Artifact') {
-            steps {
-                archiveArtifacts artifacts: 'target/*.jar',
-                                 fingerprint: true
             }
         }
 
@@ -88,15 +59,23 @@ pipeline {
                     withSonarQubeEnv('sonarqube') {
 
                         sh """
+
                         ${scannerHome}/bin/sonar-scanner \
-                        -Dsonar.projectKey=springboot-demo \
-                        -Dsonar.projectName="Spring Boot Demo" \
-                        -Dsonar.sources=src \
-                        -Dsonar.java.binaries=target/classes
+                        -Dsonar.projectKey=Sonar-Qube-testing \
+                        -Dsonar.projectName=Sonar-Qube-testing \
+                        -Dsonar.sources=. \
+                        -Dsonar.java.binaries=target/classes \
+                        -Dsonar.nodejs.executable=/usr/bin/node \
+                        -Dsonar.exclusions=**/*.js,**/*.ts,**/*.css
+
                         """
+
                     }
+
                 }
+
             }
+
         }
 
         stage('Quality Gate') {
@@ -118,25 +97,25 @@ pipeline {
             steps {
 
                 input(
-                    message: 'Approve Security Scan & Docker Build?',
-                    ok: 'Approve'
+                        message: 'Approve Docker Build & Push?',
+                        ok: 'Approve'
                 )
 
             }
 
         }
 
-        stage('Trivy Filesystem Scan') {
+        stage('Trivy File System Scan') {
 
             steps {
 
                 sh '''
-                    trivy fs \
-                        --scanners vuln \
-                        --severity HIGH,CRITICAL \
-                        --exit-code 0 \
-                        --no-progress \
-                        .
+
+                trivy fs \
+                --severity HIGH,CRITICAL \
+                --exit-code 0 \
+                .
+
                 '''
 
             }
@@ -148,9 +127,12 @@ pipeline {
             steps {
 
                 sh """
-                    docker build \
-                    -t ${DOCKER_IMAGE}:${BUILD_NUMBER} \
-                    -t ${DOCKER_IMAGE}:latest .
+
+                docker build \
+                -t ${DOCKER_IMAGE}:${IMAGE_TAG} \
+                -t ${DOCKER_IMAGE}:latest \
+                .
+
                 """
 
             }
@@ -162,11 +144,13 @@ pipeline {
             steps {
 
                 sh """
-                    trivy image \
-                    --severity HIGH,CRITICAL \
-                    --exit-code 0 \
-                    --no-progress \
-                    ${DOCKER_IMAGE}:${BUILD_NUMBER}
+
+                trivy image \
+                --severity HIGH,CRITICAL \
+                --exit-code 0 \
+                --no-progress \
+                ${DOCKER_IMAGE}:${IMAGE_TAG}
+
                 """
 
             }
@@ -178,16 +162,19 @@ pipeline {
             steps {
 
                 withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-cred',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
+                        credentialsId: 'dockerhub-cred',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
                 )]) {
 
                     sh '''
-                        echo "$DOCKER_PASS" | docker login \
-                        -u "$DOCKER_USER" \
-                        --password-stdin
+
+                    echo "$DOCKER_PASS" | docker login \
+                    -u "$DOCKER_USER" \
+                    --password-stdin
+
                     '''
+
                 }
 
             }
@@ -199,8 +186,96 @@ pipeline {
             steps {
 
                 sh """
-                    docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
-                    docker push ${DOCKER_IMAGE}:latest
+
+                docker push ${DOCKER_IMAGE}:${IMAGE_TAG}
+
+                docker push ${DOCKER_IMAGE}:latest
+
+                """
+
+            }
+
+        }
+
+        stage('Helm Lint') {
+
+            steps {
+
+                sh '''
+
+                helm lint helm/springboot-demo
+
+                '''
+
+            }
+
+        }
+
+        stage('Helm Package') {
+
+            steps {
+
+                sh '''
+
+                helm package helm/springboot-demo
+
+                '''
+
+            }
+
+        }
+
+        stage('Deploy to Kubernetes') {
+
+            steps {
+
+                sh """
+
+                helm upgrade --install ${APP_NAME} \
+                helm/springboot-demo \
+                --namespace ${params.ENVIRONMENT} \
+                --create-namespace \
+                -f helm/springboot-demo/values-${params.ENVIRONMENT}.yaml \
+                --set image.repository=${DOCKER_IMAGE} \
+                --set image.tag=${IMAGE_TAG}
+
+                """
+
+            }
+
+        }
+
+        stage('Verify Rollout') {
+
+            steps {
+
+                sh """
+
+                kubectl rollout status deployment/${APP_NAME} \
+                -n ${params.ENVIRONMENT}
+
+                """
+
+            }
+
+        }
+
+        stage('Smoke Test') {
+
+            steps {
+
+                sh """
+
+                NODEPORT=\$(kubectl get svc ${APP_NAME} \
+                -n ${params.ENVIRONMENT} \
+                -o jsonpath='{.spec.ports[0].nodePort}')
+
+                NODEIP=\$(kubectl get nodes -o wide | awk 'NR==2 {print \$6}')
+
+                echo "Testing http://\$NODEIP:\$NODEPORT/api/health"
+
+                curl http://\$NODEIP:\$NODEPORT/api/health
+
                 """
 
             }
@@ -210,6 +285,14 @@ pipeline {
     }
 
     post {
+
+        always {
+
+            junit '**/target/surefire-reports/*.xml'
+
+            archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+
+        }
 
         success {
 
@@ -223,18 +306,10 @@ pipeline {
 
         }
 
-        always {
-
-            junit allowEmptyResults: true,
-                  testResults: '**/target/surefire-reports/*.xml'
-
-            archiveArtifacts artifacts: 'target/*.jar',
-                             fingerprint: true
+        cleanup {
 
             sh 'docker logout || true'
 
-            // Enable later
-            // cleanWs()
         }
 
     }
