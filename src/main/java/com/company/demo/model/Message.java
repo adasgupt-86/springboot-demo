@@ -2,21 +2,20 @@ package com.company.demo.model;
 
 public class Message {
 
-    private String message;
+    private String content;
 
     public Message() {
     }
 
-    public Message(String message) {
-        this.message = message;
+    public Message(String content) {
+        this.content = content;
     }
 
-    public String getMessage() {
-        return message;
+    public String getContent() {
+        return content;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setContent(String content) {
+        this.content = content;
     }
-
 }
