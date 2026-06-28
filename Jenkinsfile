@@ -14,6 +14,7 @@ pipeline {
     options {
         timestamps()
         disableConcurrentBuilds()
+
         buildDiscarder(logRotator(
             numToKeepStr: '20',
             artifactNumToKeepStr: '10'
@@ -24,69 +25,61 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                echo '========== CHECKOUT =========='
+                echo "========== CHECKOUT =========="
                 checkout scm
             }
         }
 
         stage('Environment Info') {
             steps {
-                echo '========== ENVIRONMENT =========='
-
                 sh '''
-                    echo "JAVA VERSION"
+                    echo "========== JAVA VERSION =========="
                     java -version
 
-                    echo
-                    echo "MAVEN VERSION"
+                    echo ""
+                    echo "========== MAVEN VERSION =========="
                     mvn -version
 
-                    echo
-                    echo "WORKSPACE"
+                    echo ""
+                    echo "========== WORKSPACE =========="
                     pwd
+
+                    echo ""
+                    ls -la
                 '''
             }
         }
 
         stage('Compile') {
             steps {
-                echo '========== COMPILE =========='
-
-                sh '''
-                    mvn clean compile
-                '''
+                echo "========== COMPILE =========="
+                sh 'mvn clean compile'
             }
         }
 
         stage('Unit Tests') {
             steps {
-                echo '========== UNIT TESTS =========='
-
-                sh '''
-                    mvn test
-                '''
+                echo "========== UNIT TESTS =========="
+                sh 'mvn test'
             }
         }
 
         stage('Package') {
             steps {
-                echo '========== PACKAGE =========='
-
-                sh '''
-                    mvn package
-                '''
+                echo "========== PACKAGE =========="
+                sh 'mvn package'
             }
         }
 
         stage('Archive Artifact') {
             steps {
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                archiveArtifacts artifacts: 'target/*.jar',
+                                 fingerprint: true
             }
         }
 
         stage('SonarQube Scan') {
             steps {
-
                 script {
 
                     def scannerHome = tool 'sonar-scanner'
@@ -94,11 +87,11 @@ pipeline {
                     withSonarQubeEnv('sonarqube') {
 
                         sh """
-                            ${scannerHome}/bin/sonar-scanner \
-                            -Dsonar.projectKey=springboot-demo \
-                            -Dsonar.projectName="Spring Boot Demo" \
-                            -Dsonar.sources=src \
-                            -Dsonar.java.binaries=target/classes
+                        ${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=springboot-demo \
+                        -Dsonar.projectName="Spring Boot Demo" \
+                        -Dsonar.sources=src \
+                        -Dsonar.java.binaries=target/classes
                         """
                     }
                 }
@@ -106,26 +99,35 @@ pipeline {
         }
 
         stage('Quality Gate') {
-
             steps {
-
                 timeout(time: 5, unit: 'MINUTES') {
-
                     waitForQualityGate abortPipeline: true
-
                 }
             }
         }
 
         stage('Manual Approval') {
-
             steps {
-
                 input(
-                    message: 'Approve Docker Build & Push?',
+                    message: 'Approve Security Scan & Docker Build?',
                     ok: 'Approve'
                 )
+            }
+        }
 
+        stage('Trivy Filesystem Scan') {
+            steps {
+
+                echo "========== TRIVY FILESYSTEM SCAN =========="
+
+                sh '''
+                    trivy fs \
+                        --scanners vuln \
+                        --severity HIGH,CRITICAL \
+                        --exit-code 0 \
+                        --no-progress \
+                        .
+                '''
             }
         }
 
@@ -134,11 +136,11 @@ pipeline {
     post {
 
         success {
-            echo 'Pipeline completed successfully.'
+            echo "Pipeline completed successfully."
         }
 
         failure {
-            echo 'Pipeline failed.'
+            echo "Pipeline failed."
         }
 
         always {
@@ -146,9 +148,11 @@ pipeline {
             junit allowEmptyResults: true,
                   testResults: '**/target/surefire-reports/*.xml'
 
-            cleanWs()
+            archiveArtifacts artifacts: 'target/*.jar',
+                             fingerprint: true
 
+            // Enable after all stages are stable
+            // cleanWs()
         }
     }
-
 }
