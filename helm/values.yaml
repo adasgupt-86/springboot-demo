@@ -1,0 +1,23 @@
+replicaCount: 2
+
+image:
+  repository: adasgupt86/springboot-demo
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: NodePort
+  port: 9090
+  targetPort: 9090
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "256Mi"
+
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+labels:
+  app: springboot-demo
