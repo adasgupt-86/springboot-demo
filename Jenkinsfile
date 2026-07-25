@@ -22,7 +22,6 @@ pipeline {
                 mvn -version
                 git --version
                 docker --version
-                trivy --version
                 '''
             }
         }
@@ -47,7 +46,15 @@ pipeline {
 
         stage('Filesystem Scan') {
             steps {
-                sh 'trivy fs --severity HIGH,CRITICAL .'
+                sh '''
+                docker run --rm \
+                    -v $WORKSPACE:/workspace \
+                    -v /var/run/docker.sock:/var/run/docker.sock \
+                    aquasec/trivy:0.66.0 \
+                    fs \
+                    --severity HIGH,CRITICAL \
+                    /workspace
+                '''
             }
         }
 
@@ -63,7 +70,14 @@ pipeline {
 
         stage('Image Scan') {
             steps {
-                sh 'trivy image ${IMAGE_NAME}:${IMAGE_TAG}'
+                sh '''
+                docker run --rm \
+                    -v /var/run/docker.sock:/var/run/docker.sock \
+                    aquasec/trivy:0.66.0 \
+                    image \
+                    --severity HIGH,CRITICAL \
+                    adasgupt86/springboot-demo:${BUILD_NUMBER}
+                '''
             }
         }
 
