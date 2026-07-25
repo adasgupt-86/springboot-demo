@@ -37,13 +37,13 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh '''
-                    mvn sonar:sonar \
-                      -Dsonar.projectKey=springboot-demo \
-                      -Dsonar.projectName=springboot-demo
+                    mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+                        -Dsonar.projectKey=springboot-demo \
+                        -Dsonar.projectName=springboot-demo
                     '''
-                }
-            }
         }
+    }
+}
 
         stage('Filesystem Scan') {
             steps {
