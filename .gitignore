@@ -1,9 +1,14 @@
+# Maven
 target/
 
+# VS Code
 .vscode/
 
+# IntelliJ
 .idea/
 
+# macOS
 .DS_Store
 
+# Logs
 *.log
