@@ -1,0 +1,242 @@
+/* ============================
+   Enterprise DevOps Demo v1
+   Blue Theme
+============================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+
+    background: linear-gradient(135deg, #0d47a1, #1976d2);
+
+    color: #ffffff;
+
+    min-height: 100vh;
+}
+
+/* ============================
+   Main Container
+============================= */
+
+.container {
+
+    width: 90%;
+    max-width: 1200px;
+
+    margin: auto;
+
+    padding: 40px 20px;
+}
+
+/* ============================
+   Header
+============================= */
+
+h1 {
+
+    text-align: center;
+
+    font-size: 48px;
+
+    margin-bottom: 40px;
+
+    letter-spacing: 1px;
+}
+
+/* ============================
+   Card
+============================= */
+
+.card {
+
+    background: #ffffff;
+
+    color: #222;
+
+    border-radius: 18px;
+
+    padding: 40px;
+
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+
+    transition: 0.3s;
+}
+
+.card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow: 0 20px 45px rgba(0,0,0,0.35);
+}
+
+.card h2 {
+
+    color: #1565c0;
+
+    text-align: center;
+
+    margin-bottom: 25px;
+
+    font-size: 36px;
+}
+
+.card p {
+
+    font-size: 22px;
+
+    margin: 18px 0;
+
+    text-align: center;
+}
+
+.card strong {
+
+    color: #0d47a1;
+}
+
+/* ============================
+   Horizontal Line
+============================= */
+
+hr {
+
+    margin: 35px 0;
+
+    border: none;
+
+    border-top: 2px solid #ddd;
+}
+
+/* ============================
+   Status Badge
+============================= */
+
+.status {
+
+    display: inline-block;
+
+    margin-top: 15px;
+
+    padding: 10px 25px;
+
+    background: #2e7d32;
+
+    color: white;
+
+    border-radius: 30px;
+
+    font-weight: bold;
+
+    font-size: 18px;
+}
+
+/* ============================
+   Technology Stack
+============================= */
+
+.card h3 {
+
+    text-align: center;
+
+    font-size: 30px;
+
+    margin-bottom: 25px;
+
+    color: #0d47a1;
+}
+
+.badges {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    justify-content: center;
+
+    gap: 15px;
+}
+
+.badges span {
+
+    background: #1565c0;
+
+    color: white;
+
+    padding: 12px 20px;
+
+    border-radius: 30px;
+
+    font-size: 16px;
+
+    transition: 0.3s;
+
+    cursor: default;
+}
+
+.badges span:hover {
+
+    background: #0d47a1;
+
+    transform: scale(1.08);
+}
+
+/* ============================
+   Footer
+============================= */
+
+footer {
+
+    text-align: center;
+
+    margin-top: 45px;
+
+    font-size: 22px;
+
+    font-weight: bold;
+}
+
+/* ============================
+   Mobile
+============================= */
+
+@media (max-width: 768px) {
+
+    h1 {
+
+        font-size: 34px;
+    }
+
+    .card {
+
+        padding: 25px;
+    }
+
+    .card h2 {
+
+        font-size: 28px;
+    }
+
+    .card p {
+
+        font-size: 18px;
+    }
+
+    .badges span {
+
+        font-size: 14px;
+
+        padding: 10px 15px;
+    }
+
+    footer {
+
+        font-size: 18px;
+    }
+
+}

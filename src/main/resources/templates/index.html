@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Enterprise DevOps Demo</title>
+
+    <link rel="stylesheet" th:href="@{/style.css}">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🚀 Enterprise DevOps Demo</h1>
+
+    <div class="card">
+
+        <h2 th:text="${appName}"></h2>
+
+        <table>
+
+            <tr>
+                <td><strong>Application</strong></td>
+                <td th:text="${appName}"></td>
+            </tr>
+
+            <tr>
+                <td><strong>Version</strong></td>
+                <td th:text="${version}"></td>
+            </tr>
+
+            <tr>
+                <td><strong>Environment</strong></td>
+                <td th:text="${environment}"></td>
+            </tr>
+
+            <tr>
+                <td><strong>Hostname</strong></td>
+                <td th:text="${hostname}"></td>
+            </tr>
+
+            <tr>
+                <td><strong>IP Address</strong></td>
+                <td th:text="${ip}"></td>
+            </tr>
+
+            <tr>
+                <td><strong>Java Version</strong></td>
+                <td th:text="${javaVersion}"></td>
+            </tr>
+
+            <tr>
+                <td><strong>Spring Framework</strong></td>
+                <td th:text="${springVersion}"></td>
+            </tr>
+
+            <tr>
+                <td><strong>Current Time</strong></td>
+                <td th:text="${time}"></td>
+            </tr>
+
+            <tr>
+                <td><strong>Status</strong></td>
+                <td class="healthy"
+                    th:text="${status}"></td>
+            </tr>
+
+        </table>
+
+        <hr>
+
+        <h3>Technology Stack</h3>
+
+        <div class="badges">
+
+            <span>Spring Boot</span>
+
+            <span>Java 21</span>
+
+            <span>GitHub</span>
+
+            <span>Jenkins</span>
+
+            <span>SonarQube</span>
+
+            <span>Trivy</span>
+
+            <span>Docker</span>
+
+            <span>Docker Hub</span>
+
+            <span>Helm</span>
+
+            <span>ArgoCD</span>
+
+            <span>Kubernetes</span>
+
+        </div>
+
+    </div>
+
+    <footer>
+
+        Enterprise CI/CD + GitOps Lab
+
+    </footer>
+
+</div>
+
+</body>
+
+</html>
