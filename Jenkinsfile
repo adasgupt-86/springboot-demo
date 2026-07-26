@@ -104,6 +104,14 @@ pipeline {
             }
         }
 
+        stage('Helm Lint') {
+            steps {
+                sh '''
+                helm lint ./springboot-demo
+                '''
+            }
+        }
+
         stage('Helm Deploy') {
             steps {
                 withCredentials([
