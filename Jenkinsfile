@@ -103,6 +103,27 @@ pipeline {
             }
         }
 
+        stage('Helm Deploy') {
+            steps {
+                withCredentials([
+                    file(credentialsId: 'kubeconfig-cred',
+                        variable: 'KUBECONFIG')
+                ]) {
+
+                    sh '''
+                    echo "Deploying application using Helm"
+
+                    helm upgrade --install springboot-demo \
+                    ./springboot-demo \
+                    --namespace springboot-demo \
+                    --create-namespace
+
+                    kubectl get pods -n springboot-demo
+                    '''
+                }
+            }
+        }
+
         stage('Docker Cleanup') {
             steps {
                 sh '''
