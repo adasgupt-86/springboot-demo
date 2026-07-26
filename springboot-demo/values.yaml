@@ -2,19 +2,9 @@ replicaCount: 2
 
 image:
   repository: adasgupt86/springboot-demo
-  pullPolicy: IfNotPresent
   tag: "9"
+  pullPolicy: IfNotPresent
 
-autoscaling:
-  enabled: false
-  minReplicas: 2
-  maxReplicas: 5
-  targetCPUUtilizationPercentage: 60
-
-serviceAccount:
-  create: false
-  automount: false
-  name: ""
 
 service:
   type: ClusterIP
@@ -23,20 +13,66 @@ service:
 containerPort: 8080
 
 
+# Kubernetes ServiceAccount
+serviceAccount:
+  create: false
+  automount: false
+  name: ""
+
+
+# Security hardening
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  allowPrivilegeEscalation: false
+
+
+# Application health checks
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+
+# CPU and memory allocation
 resources:
   requests:
     cpu: 500m
     memory: 512Mi
+
   limits:
     cpu: "1"
     memory: 1Gi
 
 
+# HPA
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 60
+
+
+# Ingress
 ingress:
   enabled: false
 
 
+# Application ConfigMap values
 config:
   APP_NAME: springboot-demo
   ENV: dev
-
