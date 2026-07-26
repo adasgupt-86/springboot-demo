@@ -103,6 +103,16 @@ pipeline {
             }
         }
 
+        stage('Docker Cleanup') {
+            steps {
+                sh '''
+                docker builder prune -af
+                docker image prune -f
+                docker container prune -f
+            '''
+            }
+        }
+
     }
 
     post {
