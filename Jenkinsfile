@@ -22,6 +22,7 @@ pipeline {
                 mvn -version
                 git --version
                 docker --version
+                helm version
                 '''
             }
         }
