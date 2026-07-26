@@ -127,6 +127,10 @@ pipeline {
                     --namespace springboot-demo \
                     --create-namespace
 
+                    kubectl rollout status deployment/springboot-demo \
+                    -n springboot-demo \
+                    --timeout=120s
+
                     kubectl get pods -n springboot-demo
                     '''
                 }
@@ -152,12 +156,150 @@ pipeline {
         }
 
         success {
-            echo "Pipeline completed successfully."
+
+            emailext(
+                subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+
+                body: """
+                <html>
+
+                <body>
+
+                <img src="https://www.jenkins.io/images/logos/jenkins/jenkins.png"
+                 width="120"/>
+
+                <h2 style="color:green;">
+                Jenkins Build SUCCESS
+                </h2>
+
+
+                <table border="1" cellpadding="8">
+
+                <tr>
+                <td><b>Job Name</b></td>
+                <td>${env.JOB_NAME}</td>
+                </tr>
+
+
+                <tr>
+                <td><b>Build Number</b></td>
+                <td>${env.BUILD_NUMBER}</td>
+                </tr>
+
+
+                <tr>
+                <td><b>Status</b></td>
+                <td>SUCCESS</td>
+                </tr>
+
+
+                <tr>
+                <td><b>Build URL</b></td>
+                <td>
+                <a href="${env.BUILD_URL}">
+                ${env.BUILD_URL}
+                </a>
+                </td>
+                </tr>
+
+                </table>
+
+
+                <br>
+
+                Application:
+                springboot-demo
+
+                <br>
+
+                Deployment:
+                Kubernetes via Helm
+
+                </body>
+
+                </html>
+                """,
+
+                mimeType: 'text/html',
+
+                to: 'abhishek.dasgupta@gmail.com'
+            )
+
         }
 
+
         failure {
-            echo "Pipeline failed."
-        }
+
+            emailext(
+
+                subject:
+                "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+
+
+                body: """
+
+                <html>
+
+                <body>
+
+                <img src="https://www.jenkins.io/images/logos/jenkins/jenkins.png"
+                 width="120"/>
+
+
+                <h2 style="color:red;">
+                Jenkins Build FAILED
+                </h2>
+
+
+                <table border="1" cellpadding="8">
+
+
+                <tr>
+                <td><b>Job Name</b></td>
+                <td>${env.JOB_NAME}</td>
+                </tr>
+
+
+                <tr>
+                <td><b>Build Number</b></td>
+                <td>${env.BUILD_NUMBER}</td>
+                </tr>
+
+
+                <tr>
+                <td><b>Status</b></td>
+                <td>FAILED</td>
+                </tr>
+
+
+                <tr>
+                <td><b>Console URL</b></td>
+                <td>
+                <a href="${env.BUILD_URL}">
+                ${env.BUILD_URL}
+                </a>
+                </td>
+                </tr>
+
+
+                </table>
+
+
+                <br>
+
+                Please check Jenkins console logs.
+
+                </body>
+
+                </html>
+
+                """,
+
+                mimeType: 'text/html',
+
+                to: 'abhishek.dasgupta@gmail.com'
+
+        )
 
     }
 
