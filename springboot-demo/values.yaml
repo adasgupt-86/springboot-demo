@@ -5,6 +5,8 @@ image:
   tag: "9"
   pullPolicy: IfNotPresent
 
+#Istio version
+version: v1
 
 service:
   type: ClusterIP
@@ -76,3 +78,4 @@ ingress:
 config:
   APP_NAME: springboot-demo
   ENV: dev
+
