@@ -1,12 +1,32 @@
 replicaCount: 2
 
+version: v1
+
 image:
   repository: adasgupt86/springboot-demo
   tag: "9"
   pullPolicy: IfNotPresent
 
-#Istio version
-version: v1
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: false
+  automount: false
+  name: ""
+
+podAnnotations: {}
+
+podLabels: {}
+
+podSecurityContext: {}
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  allowPrivilegeEscalation: false
 
 service:
   type: ClusterIP
@@ -14,22 +34,25 @@ service:
 
 containerPort: 8080
 
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: springboot.demo.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
 
-# Kubernetes ServiceAccount
-serviceAccount:
-  create: false
-  automount: false
-  name: ""
+resources:
+  requests:
+    cpu: 500m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
 
-
-# Security hardening
-securityContext:
-  runAsNonRoot: true
-  runAsUser: 1000
-  allowPrivilegeEscalation: false
-
-
-# Application health checks
 livenessProbe:
   httpGet:
     path: /
@@ -38,7 +61,6 @@ livenessProbe:
   periodSeconds: 10
   timeoutSeconds: 5
   failureThreshold: 3
-
 
 readinessProbe:
   httpGet:
@@ -49,33 +71,22 @@ readinessProbe:
   timeoutSeconds: 3
   failureThreshold: 3
 
-
-# CPU and memory allocation
-resources:
-  requests:
-    cpu: 500m
-    memory: 512Mi
-
-  limits:
-    cpu: "1"
-    memory: 1Gi
-
-
-# HPA
 autoscaling:
   enabled: false
   minReplicas: 2
   maxReplicas: 5
   targetCPUUtilizationPercentage: 60
 
+volumes: []
 
-# Ingress
-ingress:
-  enabled: true
+volumeMounts: []
 
+nodeSelector: {}
 
-# Application ConfigMap values
+tolerations: []
+
+affinity: {}
+
 config:
   APP_NAME: springboot-demo
   ENV: dev
-
