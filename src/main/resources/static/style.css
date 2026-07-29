@@ -13,7 +13,7 @@ body {
 
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 
-    background: linear-gradient(135deg, #0d47a1, #1976d2);
+    background: linear-gradient(135deg, #2e7d32, #66bb6a);    
 
     color: #ffffff;
 
@@ -55,7 +55,7 @@ h1 {
 
 .card {
 
-    background: #ffffff;
+    background:#e8f5e9;    
 
     color: #222;
 
@@ -164,7 +164,7 @@ hr {
 
 .badges span {
 
-    background: #1565c0;
+    background: #43a047;
 
     color: white;
 
@@ -191,6 +191,8 @@ hr {
 ============================= */
 
 footer {
+
+    color:#c8e6c9;
 
     text-align: center;
 
