@@ -5,13 +5,25 @@ pipeline {
         APP_NAME = "springboot-demo"
         IMAGE_NAME = "adasgupt86/springboot-demo"
         IMAGE_TAG = "${BUILD_NUMBER}"
-    }
+        }
+
+        parameters {
+            string(
+                name: 'GIT_BRANCH',
+                defaultValue: 'feature/canary-v2',
+                description: 'Git Branch'
+            )
+        }
 
     stages {
 
         stage('Checkout') {
             steps {
-                checkout scm
+                git branch: "${params.GIT_BRANCH}",
+                    credentialsId: 'github-pat',
+                    url: 'https://github.com/adasgupt-86/springboot-demo.git'
+                    changelog: false,
+                    poll: false
             }
         }
 
