@@ -21,7 +21,7 @@ pipeline {
             steps {
                 git branch: "${params.GIT_BRANCH}",
                     credentialsId: 'github-pat',
-                    url: 'https://github.com/adasgupt-86/springboot-demo.git'
+                    url: 'https://github.com/adasgupt-86/springboot-demo.git',
                     changelog: false,
                     poll: false
             }
