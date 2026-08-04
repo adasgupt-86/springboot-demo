@@ -142,7 +142,7 @@ pipeline {
                     --create-namespace \
                     --atomic \
                     --wait \
-                    --timeout 5m \
+                    --timeout 15m \
                     --set image.repository=${IMAGE_NAME} \
                     --set image.tag=${IMAGE_TAG}
 
@@ -150,7 +150,7 @@ pipeline {
                     -n springboot-demo \
                     --timeout=120s
 
-                    sleep 20
+                    kubectl get events -n springboot-demo --sort-by=.metadata.creationTimestamp
 
                     kubectl get pods -n springboot-demo
 
