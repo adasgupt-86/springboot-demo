@@ -89,7 +89,8 @@ pipeline {
                     aquasec/trivy:0.66.0 \
                     image \
                     --severity HIGH,CRITICAL \
-                    adasgupt86/springboot-demo:${BUILD_NUMBER}
+                    --exit-code 1 \
+                    ${IMAGE_NAME}:${IMAGE_TAG}
                 '''
             }
         }
@@ -111,6 +112,7 @@ pipeline {
 
                     docker push ${IMAGE_NAME}:${IMAGE_TAG}
                     docker push ${IMAGE_NAME}:latest
+                    docker logout
                     '''
                 }
             }
@@ -137,13 +139,24 @@ pipeline {
                     helm upgrade --install springboot-demo \
                     ./springboot-demo \
                     --namespace springboot-demo \
-                    --create-namespace
+                    --create-namespace \
+                    --atomic \
+                    --wait \
+                    --timeout 5m \
+                    --set image.repository=${IMAGE_NAME} \
+                    --set image.tag=${IMAGE_TAG}
 
                     kubectl rollout status deployment/springboot-demo \
                     -n springboot-demo \
                     --timeout=120s
 
+                    sleep 20
+
                     kubectl get pods -n springboot-demo
+
+                    kubectl get svc -n springboot-demo
+
+                    kubectl get ingress -n springboot-demo
                     '''
                 }
             }
