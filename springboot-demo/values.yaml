@@ -36,8 +36,14 @@ containerPort: 8080
 
 ingress:
   enabled: true
-  className: nginx
+  className: traefik
   annotations: {}
+  hosts:
+    - host: springboot.demo.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
   hosts:
     - host: springboot.demo.local
       paths:
