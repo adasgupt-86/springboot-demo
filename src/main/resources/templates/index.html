@@ -5,7 +5,7 @@
 
     <meta charset="UTF-8">
 
-    <title>Enterprise DevOps Demo</title>
+    <title>Enterprise DevOps Demo - v2</title>
 
     <link rel="stylesheet" th:href="@{/style.css}">
 
@@ -15,7 +15,17 @@
 
 <div class="container">
 
-    <h1>🚀 Enterprise DevOps Demo</h1>
+    <h1>🚀 Enterprise DevOps Demo - v2 </h1>
+    
+    <div style="background:#28a745;
+            color:white;
+            padding:10px;
+            border-radius:5px;
+            margin-bottom:15px;
+            text-align:center;
+            font-weight:bold;">
+    🚀 Canary Deployment - Version 2
+    </div>
 
     <div class="card">
 
@@ -30,7 +40,14 @@
 
             <tr>
                 <td><strong>Version</strong></td>
-                <td th:text="${version}"></td>
+                <td>
+                    <span style="color:blue;font-weight:bold;" th:text="${version}"></span>
+                </td>
+            </tr>
+
+            <tr>
+                <td><strong>Release</strong></td>
+                <td style="color: green; font-weight: bold;">CANARY</td>
             </tr>
 
             <tr>
@@ -89,13 +106,13 @@
 
             <span>Trivy</span>
 
-            <span>Docker</span>
+            <span>Dockerfile</span>
 
             <span>Docker Hub</span>
 
             <span>Helm</span>
 
-            <span>ArgoCD</span>
+            <span>FluxCD</span>
 
             <span>Kubernetes</span>
 
@@ -105,7 +122,7 @@
 
     <footer>
 
-        Enterprise CI/CD + GitOps Lab
+        Enterprise CI/CD + GitOps Lab - Canary Release
 
     </footer>
 

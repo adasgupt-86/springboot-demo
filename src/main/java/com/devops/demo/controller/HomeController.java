@@ -21,7 +21,7 @@ public class HomeController {
         InetAddress inetAddress = InetAddress.getLocalHost();
 
         model.addAttribute("appName", "Enterprise DevOps Demo");
-        model.addAttribute("version", "v1.0.0");
+        model.addAttribute("version", "v2.0.0");
         model.addAttribute("environment", environment);
 
         model.addAttribute("hostname", inetAddress.getHostName());
@@ -29,7 +29,7 @@ public class HomeController {
 
         model.addAttribute("javaVersion",
                 System.getProperty("java.version"));
-
+       
         model.addAttribute("springVersion",
                 SpringVersion.getVersion());
 
