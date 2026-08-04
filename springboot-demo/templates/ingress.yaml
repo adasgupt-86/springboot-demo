@@ -1,31 +1,34 @@
+{{- if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
-
 metadata:
-  name: springboot-demo
+  name: {{ include "springboot-demo.fullname" . }}
+  labels:
+    {{- include "springboot-demo.labels" . | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
 
 spec:
-
-  ingressClassName: nginx
+  ingressClassName: {{ .Values.ingress.className }}
 
   rules:
-
-  - host: springboot.demo.local
-
+  {{- range .Values.ingress.hosts }}
+  - host: {{ .host | quote }}
     http:
-
       paths:
-
-      - path: /
-
-        pathType: Prefix
-
+      {{- range .paths }}
+      - path: {{ .path }}
+        pathType: {{ .pathType }}
         backend:
-
           service:
-
-            name: springboot-demo
-
+            name: {{ include "springboot-demo.fullname" $ }}
             port:
+              number: {{ $.Values.service.port }}
+      {{- end }}
+  {{- end }}
 
-              number: 8080
+  {{- if .Values.ingress.tls }}
+  tls:
+  {{- toYaml .Values.ingress.tls | nindent 2 }}
+  {{- end }}
+{{- end }}

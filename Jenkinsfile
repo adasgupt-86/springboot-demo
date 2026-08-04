@@ -247,7 +247,7 @@ pipeline {
 
                 mimeType: 'text/html',
 
-                to: 'abhishek.dasgupta@gmail.com'
+                to: 'abhishek.dasgupta@gmail.com, adasgupta1986@gmail.com'
             )
 
         }
@@ -322,7 +322,7 @@ pipeline {
 
                 mimeType: 'text/html',
 
-                to: 'abhishek.dasgupta@gmail.com'
+                to: 'abhishek.dasgupta11@gmail.com, adasgupt1986@gmail.com'
 
          )
 
